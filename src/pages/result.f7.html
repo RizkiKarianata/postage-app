@@ -1,0 +1,96 @@
+<template>
+	<div class="page color-theme-purple">
+		<div class="navbar color-theme-purple">
+			<div class="navbar-bg" style="background: #9C27B0;"></div>
+			<div class="navbar-inner sliding">
+				<div class="left">
+					<a href="#" class="link back" style="color: #fff;">
+						<i class="icon f7-icons if-not-md">arrow_left</i>
+						<i class="icon material-icons if-md">arrow_back</i>
+					</a>
+				</div>
+				<div class="title" style="color: #fff;">MyOngkir</div>
+			</div>
+		</div>
+		<div class="page-content login-screen-content">
+			{{#each data}}
+			<div class="card">
+				<div class="card-content card-content-padding">
+					<div class="list media-list no-chevron">
+						<ul>
+							<li>
+								<a href="#" class="item-link item-content">
+									<div class="item-inner">
+										<div class="item-title-row">
+											<div class="item-title">{{this.code}}</div>
+											<div class="item-after">Rp. {{this.value.toLocaleString("en-US")}}</div>
+										</div>
+										<div class="item-subtitle">{{this.name}}</div>
+										<div class="item-text" style="lines">{{this.description}} ({{this.service}})<br>{{this.type}} {{this.city_name}} - {{this.subdistrict_name}}<br>{{this.etd}} Hari</div>
+									</div>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			{{/each}}
+		</div>
+	</div>
+</template>
+<script>
+	export default{
+		mounted() {
+			var $this = this;
+			var app = this.$app;
+			var $$ = this.$$;
+			var self = this;
+		},
+		on: {
+			pageInit: function () {
+				var self = this;
+				var $this = this;
+				var app = this.$app;
+				var $$ = this.$$;
+
+				var kotaAsal = localStorage.getItem('kota_asal');
+				var provinsiTujuan = localStorage.getItem('provinsi_tujuan');
+				var kotaTujuan = localStorage.getItem('kota_tujuan');
+				var kecamatanTujuan = localStorage.getItem('kecamatan_tujuan');
+
+				var dataJSON = new Array();
+				var items = [];
+				app.request.post('https://pro.rajaongkir.com/api/cost', {key: '{YOUR_API_KEY}', origin: kotaAsal, originType: 'city', destination: kecamatanTujuan, destinationType: 'subdistrict', weight: 1000, courier: 'jne:pos:tiki:pandu:wahana:sicepat:jnt:jet:lion:idl:anteraja'}, (response) => {
+					dataJSON = JSON.parse(response);
+					var myData1 = dataJSON.rajaongkir.results;
+					for (var a = 0; a < myData1.length; a++) {
+						var name = myData1[a].name;
+						var code = myData1[a].code.toUpperCase();
+						var myData2 = myData1[a].costs;
+						for (var b = 0; b < myData2.length; b++) {
+							var service = myData2[b].service;
+							var description = myData2[b].description;
+							var value = myData2[b].cost[0].value;
+							var etd = myData2[b].cost[0].etd;
+							items.push({
+								name: name,
+								code: code,
+								service: service,
+								description: description,
+								value: value,
+								etd: etd,
+								type: dataJSON.rajaongkir.origin_details.type,
+								city_name: dataJSON.rajaongkir.origin_details.city_name,
+								subdistrict_name: dataJSON.rajaongkir.destination_details.subdistrict_name
+							});
+						}
+					}
+					console.log(items);
+					self.$setState({
+						data: items
+					});
+				});
+			},
+		},
+	}
+</script>

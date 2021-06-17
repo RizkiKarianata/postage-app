@@ -1,0 +1,308 @@
+<template>
+	<div class="page color-theme-purple">
+		<div class="navbar color-theme-purple">
+			<div class="navbar-bg" style="background: #9C27B0;"></div>
+			<div class="navbar-inner sliding">
+				<div class="title" style="color: #fff;">MyOngkir</div>
+			</div>
+		</div>
+		<div class="page-content login-screen-content">
+			<input type="hidden" name="kota_asal" id="kota_asal">
+			<input type="hidden" name="provinsi_tujuan" id="provinsi_tujuan">
+			<input type="hidden" name="kota_tujuan" id="kota_tujuan">
+			<input type="hidden" name="kecamatan_tujuan" id="kecamatan_tujuan">
+			<div class="list no-hairlines-md">
+				<ul>
+					<li class="item-content item-input item-input-outline">
+						<div class="item-inner">
+							<div class="item-title item-floating-label">Kota Asal</div>
+							<div class="item-input-wrap">
+								<input type="text" id="dropdown-kota-asal" placeholder="Kota Asal">
+								<span class="input-clear-button"></span>
+							</div>
+						</div>
+					</li>
+					<li class="item-content item-input item-input-outline">
+						<div class="item-inner">
+							<div class="item-title item-floating-label">Provinsi Tujuan</div>
+							<div class="item-input-wrap">
+								<input type="text" id="dropdown-provinsi-tujuan" placeholder="Provinsi Tujuan">
+								<span class="input-clear-button"></span>
+							</div>
+						</div>
+					</li>
+					<li class="item-content item-input item-input-outline">
+						<div class="item-inner">
+							<div class="item-title item-floating-label">Kota Tujuan</div>
+							<div class="item-input-wrap">
+								<input type="text" id="dropdown-kota-tujuan" placeholder="Kota Tujuan" readonly="">
+								<span class="input-clear-button"></span>
+							</div>
+						</div>
+					</li>
+					<li class="item-content item-input item-input-outline">
+						<div class="item-inner">
+							<div class="item-title item-floating-label">Kecamatan Tujuan</div>
+							<div class="item-input-wrap">
+								<input type="text" id="dropdown-kecamatan-tujuan" placeholder="Kecamatan Tujuan" readonly="">
+								<span class="input-clear-button"></span>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="block">
+				<p class="row">
+					<button class="col button button-large button-fill button-round" @click="check">Lihat Ongkos Kirim</button>
+				</p>
+			</div>
+			<div class="list">
+				<div class="block-footer">
+					<p>Harga Ongkos Kirim / 1 Kilogram</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
+<script>
+	export default{
+		mounted() {
+			var $this = this;
+			var app = this.$app;
+			var $$ = this.$$;
+			var self = this;
+			var autocompleteKotaAsal = app.autocomplete.create({
+				inputEl: '#dropdown-kota-asal',
+				openIn: 'dropdown',
+				preloader: true,
+				value: 'city_id',
+				valueProperty: 'name',
+				textProperty: 'name',
+				closeOnSelect: true,
+				source: function (query, render) {
+					var autocomplete = this;
+					var results = [];
+					if (query.length === 0) {
+						render(results);
+						return;
+					}
+					autocomplete.preloaderShow();
+					app.request({
+						url: 'https://pro.rajaongkir.com/api/city',
+						method: 'GET',
+						dataType: 'json',
+						data: {
+							query: query,
+							key: "{YOUR_API_KEY}",
+						},
+						success: function (data) {
+							var dataJSON = data.rajaongkir.results;
+							for (var i = 0; i < dataJSON.length; i++) {
+								var campuran = dataJSON[i].type + ' ' + dataJSON[i].city_name;
+								if (campuran.toLowerCase().indexOf(query.toLowerCase()) >= 0) results.push({
+									city_id: dataJSON[i].city_id,
+									province_id: dataJSON[i].province_id,
+									province: dataJSON[i].province,
+									type: dataJSON[i].type,
+									city_name: dataJSON[i].city_name,
+									postal_code: dataJSON[i].postal_code,
+									name: campuran
+								});
+							}
+							autocomplete.preloaderHide();
+							render(results);
+						}
+					});
+				},
+				on: {
+					change: function (value) {
+						$$('#kota_asal').val(value[0].city_id);
+					}
+				}
+			});
+			var autocompleteProvinsiTujuan = app.autocomplete.create({
+				inputEl: '#dropdown-provinsi-tujuan',
+				openIn: 'dropdown',
+				preloader: true,
+				value: 'province_id',
+				valueProperty: 'province',
+				textProperty: 'province',
+				source: function (query, render) {
+					var autocomplete = this;
+					var results = [];
+					if (query.length === 0) {
+						render(results);
+						return;
+					}
+					autocomplete.preloaderShow();
+					app.request({
+						url: 'https://pro.rajaongkir.com/api/province',
+						method: 'GET',
+						dataType: 'json',
+						data: {
+							query: query,
+							key: "{YOUR_API_KEY}",
+						},
+						success: function (data) {
+							var dataJSON = data.rajaongkir.results;
+							for (var i = 0; i < dataJSON.length; i++) {
+								if (dataJSON[i].province.toLowerCase().indexOf(query.toLowerCase()) >= 0) results.push(dataJSON[i]);
+							}
+							autocomplete.preloaderHide();
+							render(results);
+						}
+					});
+				},
+				on: {
+					change: function (value) {
+						$$('#provinsi_tujuan').val(value[0].province_id);
+					}
+				}
+			});
+			autocompleteProvinsiTujuan.on('change', function(response) {
+				$$('#dropdown-kota-tujuan').removeAttr('readonly');
+				var province_id = response[0].province_id;
+				var autocompleteKotaTujuan = app.autocomplete.create({
+					inputEl: '#dropdown-kota-tujuan',
+					openIn: 'dropdown',
+					preloader: true,
+					value: 'city_id',
+					valueProperty: 'name',
+					textProperty: 'name',
+					source: function (query, render) {
+						var autocomplete = this;
+						var results = [];
+						if (query.length === 0) {
+							render(results);
+							return;
+						}
+						autocomplete.preloaderShow();
+						app.request({
+							url: 'https://pro.rajaongkir.com/api/city',
+							method: 'GET',
+							dataType: 'json',
+							data: {
+								query: query,
+								key: "{YOUR_API_KEY}",
+								province: province_id,
+							},
+							success: function (data) {
+								var dataJSON = data.rajaongkir.results;
+								for (var i = 0; i < dataJSON.length; i++) {
+									var campuran = dataJSON[i].type + ' ' + dataJSON[i].city_name;
+									if (campuran.toLowerCase().indexOf(query.toLowerCase()) >= 0) results.push({
+										city_id: dataJSON[i].city_id,
+										province_id: dataJSON[i].province_id,
+										province: dataJSON[i].province,
+										type: dataJSON[i].type,
+										city_name: dataJSON[i].city_name,
+										postal_code: dataJSON[i].postal_code,
+										name: campuran
+									});
+								}
+								autocomplete.preloaderHide();
+								render(results);
+							}
+						});
+					},
+					on: {
+						change: function (value) {
+							$$('#kota_tujuan').val(value[0].city_id);
+						}
+					}
+				});
+				autocompleteKotaTujuan.on('change', function(responses) {
+					$$('#dropdown-kecamatan-tujuan').removeAttr('readonly');
+					var city_id = responses[0].city_id;
+					var autocompleteKecamatanTujuan = app.autocomplete.create({
+						inputEl: '#dropdown-kecamatan-tujuan',
+						openIn: 'dropdown',
+						preloader: true,
+						value: 'subdistrict_id',
+						valueProperty: 'subdistrict_name',
+						textProperty: 'subdistrict_name',
+						source: function (query, render) {
+							var autocomplete = this;
+							var results = [];
+							if (query.length === 0) {
+								render(results);
+								return;
+							}
+							autocomplete.preloaderShow();
+							app.request({
+								url: 'https://pro.rajaongkir.com/api/subdistrict',
+								method: 'GET',
+								dataType: 'json',
+								data: {
+									query: query,
+									key: "{YOUR_API_KEY}",
+									city: city_id,
+								},
+								success: function (data) {
+									var dataJSON = data.rajaongkir.results;
+									for (var i = 0; i < dataJSON.length; i++) {
+										if (dataJSON[i].subdistrict_name.toLowerCase().indexOf(query.toLowerCase()) >= 0) results.push(dataJSON[i]);
+									}
+									autocomplete.preloaderHide();
+									render(results);
+								}
+							});
+						},
+						on: {
+							change: function (value) {
+								$$('#kecamatan_tujuan').val(value[0].subdistrict_id);
+							}
+						}
+					});
+				});
+			});
+		},
+		methods: {
+			check: function() {
+				var $this = this;
+				var app = this.$app;
+				var $$ = this.$$;
+				var self = this;
+
+				var kotaAsal = $$('#kota_asal').val();
+				var provinsiTujuan = $$('#provinsi_tujuan').val();
+				var kotaTujuan = $$('#kota_tujuan').val();
+				var kecamatanTujuan = $$('#kecamatan_tujuan').val();
+
+				var dropdownKotaAsal = $$('#dropdown-kota-asal').val();
+				var dropdownProvinsiTujuan = $$('#dropdown-provinsi-tujuan').val();
+				var dropdownKotaTujuan = $$('#dropdown-kota-tujuan').val();
+				var dropdownKecamatanTujuan = $$('#dropdown-kecamatan-tujuan').val();
+
+				if(dropdownKotaAsal == "" || dropdownKotaAsal == null) {
+					app.dialog.alert('Kota Asal tidak boleh kosong');
+				}else if(dropdownProvinsiTujuan == "" || dropdownProvinsiTujuan == null) {
+					app.dialog.alert('Provinsi Tujuan tidak boleh kosong');
+				}else if(dropdownKotaTujuan == "" || dropdownKotaTujuan == null) {
+					app.dialog.alert('Kota Tujuan tidak boleh kosong');
+				}else if(dropdownKecamatanTujuan == "" || dropdownKecamatanTujuan == null) {
+					app.dialog.alert('Kecamatan Tujuan tidak boleh kosong');
+				}else {
+					localStorage.setItem('kota_asal', kotaAsal);
+					localStorage.setItem('provinsi_tujuan', provinsiTujuan);
+					localStorage.setItem('kota_tujuan', kotaTujuan);
+					localStorage.setItem('kecamatan_tujuan', kecamatanTujuan);
+
+					app.dialog.progress("Harap Menunggu");
+					setTimeout(function () {
+						app.dialog.close();
+						app.views.main.router.navigate('/result/');
+					}, 3500);
+				}
+			},
+		},
+		on: {
+			pageInit: function () {
+				var self = this;
+				var $this = this;
+				var app = this.$app;
+				var $$ = this.$$;
+			},
+		},
+	}
+</script>
