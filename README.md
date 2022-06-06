@@ -1,6 +1,6 @@
 <h1 align="center">Welcome to Postage App! 👋 </h1>
 
-![Postage App](https://user-images.githubusercontent.com/52366240/172046132-259844ef-a07c-4740-981a-69c19b878bf8.png)
+![Postage App](https://user-images.githubusercontent.com/52366240/172194913-f751a3f7-e52d-4177-b7e6-b8b6ae563938.png)
 
 <p align="center">Postage App is a simple application that is used to find out shipping costs between regions throughout Indonesia. Built using Framework7. 💖 </p>
 
@@ -64,10 +64,7 @@ Download the latest project release from the [Release Page](https://github.com/R
 * [Framework7](https://framework7.io/)
 * [Apache Cordova](https://cordova.apache.org/)
 * [Node.js](https://nodejs.org/en/)
-* [Download Weton Zodiac Appp - Mediafire](https://www.mediafire.com/file/ihkflhz2gdaez6a/ZodiakWeton-F7.apk/file)
-* [Download Weton Zodiac Appp - Google Drive](https://drive.google.com/file/d/1u8p724srXma_LiUjEzMIVAhuu9bR34kg/view?usp=sharing)
-* [Download Weton Zodiac Appp - Dropbox](https://www.dropbox.com/s/ylplqhdnoeow27y/ZodiakWeton-F7.apk?dl=0)
-* [Download Weton Zodiac Appp - Mega](https://mega.nz/file/2YoR3aDD#lWXonZo9bGP0XjPtXC4wOMj3ESWrMzVPE-zsrjaZaR8)
+* [Download Postage Appp - Mediafire](https://www.mediafire.com/file/lqaeromqmbeurut/MyOngkir.apk/file)
 * Did you build a framework or other features? Open up Pull Requests and put yours here! 😃
 
 ## 📆 Release Date
