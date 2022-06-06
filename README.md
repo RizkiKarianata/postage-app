@@ -64,7 +64,7 @@ Download the latest project release from the [Release Page](https://github.com/R
 * [Framework7](https://framework7.io/)
 * [Apache Cordova](https://cordova.apache.org/)
 * [Node.js](https://nodejs.org/en/)
-* [Download Postage Appp - Mediafire](https://www.mediafire.com/file/lqaeromqmbeurut/MyOngkir.apk/file)
+* [Download Postage App - Mediafire](https://www.mediafire.com/file/lqaeromqmbeurut/MyOngkir.apk/file)
 * Did you build a framework or other features? Open up Pull Requests and put yours here! 😃
 
 ## 📆 Release Date
